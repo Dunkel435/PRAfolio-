@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: #08080c;
+    color: #f5f0e8;
+    font-family: 'Inter', system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: rgba(232, 168, 56, 0.3);
+    color: #faf7f2;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0c0c12;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #353548;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #4a4a5e;
+  }
+
+  :focus-visible {
+    outline: 2px solid #e8a838;
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+}
+
+@layer components {
+  .section-number {
+    font-family: 'Space Grotesk', monospace;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+  }
+
+  .german-label {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+  }
+
+  .nav-link {
+    @apply relative flex items-center gap-4 px-4 py-3 transition-all duration-300;
+    border-left: 1px solid transparent;
+  }
+  .nav-link:hover,
+  .nav-link[data-active="true"] {
+    border-left-color: #e8a838;
+    background: rgba(232, 168, 56, 0.04);
+  }
+
+  .nav-link-number {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #9a8a6e;
+    transition: color 0.3s;
+  }
+  .nav-link:hover .nav-link-number,
+  .nav-link[data-active="true"] .nav-link-number {
+    color: #e8a838;
+  }
+
+  .nav-link-german {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 0.75rem;
+    color: #7a6e58;
+    transition: color 0.3s;
+  }
+  .nav-link:hover .nav-link-german,
+  .nav-link[data-active="true"] .nav-link-german {
+    color: #d4c8b0;
+  }
+
+  .nav-link-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #b8a888;
+    transition: color 0.3s;
+  }
+  .nav-link:hover .nav-link-title,
+  .nav-link[data-active="true"] .nav-link-title {
+    color: #faf7f2;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+  .glass {
+    background: rgba(12, 12, 18, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(74, 74, 94, 0.2);
+  }
+  .glass-strong {
+    background: rgba(8, 8, 12, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(74, 74, 94, 0.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
