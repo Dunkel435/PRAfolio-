@@ -25,6 +25,7 @@ import {
 
 interface SectionProps {
   onNavigate: (id: SectionId) => void;
+  onOpenWork?: (workId: string) => void;
 }
 
 function SectionHeader({ number, german, title }: { number: string; german: string; title: string }) {
@@ -57,9 +58,15 @@ function EmptyState({ label, hint }: { label: string; hint: string }) {
 
 // ── Work card (data-driven, ready for content system) ──
 
-function WorkCard({ item }: { item: PortfolioItem }) {
+function WorkCard({ item, onOpen }: { item: PortfolioItem; onOpen?: (workId: string) => void }) {
+  const hasCaseStudy = !!item.caseStudy;
+  const handleClick = hasCaseStudy && onOpen ? () => onOpen(item.id) : undefined;
+
   return (
-    <article className="relative aspect-[4/3] rounded-xl border border-ink-600/50 bg-ink-800/40 overflow-hidden group">
+    <article
+      onClick={handleClick}
+      className={`relative aspect-[4/3] rounded-xl border border-ink-600/50 bg-ink-800/40 overflow-hidden group ${hasCaseStudy ? 'cursor-pointer' : ''}`}
+    >
       {item.image ? (
         <img
           src={item.image}
@@ -80,6 +87,11 @@ function WorkCard({ item }: { item: PortfolioItem }) {
       {item.featured && (
         <span className="absolute top-3 right-3 text-xs text-amber-400 font-mono bg-ink-950/60 px-2 py-1 rounded-full">
           Featured
+        </span>
+      )}
+      {hasCaseStudy && (
+        <span className="absolute top-3 left-3 w-7 h-7 rounded-full bg-ink-950/60 border border-ink-500/40 flex items-center justify-center group-hover:border-amber-500/50 transition-colors">
+          <ArrowUpRight size={14} className="text-cream-400 group-hover:text-amber-400 transition-colors" />
         </span>
       )}
       <div className="absolute bottom-0 left-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -179,7 +191,7 @@ export function IntroductionSection({ onNavigate }: SectionProps) {
 }
 
 // 02 — SELECTED WORK
-export function WorkSection() {
+export function WorkSection({ onOpenWork }: { onOpenWork?: (workId: string) => void }) {
   return (
     <article aria-labelledby="work-heading">
       <SectionHeader number="02" german="ZWEI" title="Selected Work" />
@@ -192,7 +204,7 @@ export function WorkSection() {
           {portfolioItems
             .filter((item) => item.published)
             .map((item) => (
-              <WorkCard key={item.id} item={item} />
+              <WorkCard key={item.id} item={item} onOpen={onOpenWork} />
             ))}
         </div>
       ) : (
@@ -352,23 +364,29 @@ export function ResumeSection() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-6">
           <p className="text-cream-300 leading-relaxed">
-            A full resume document will be available for download here once provided.
+            View or download my current resume as a PDF.
           </p>
-          {owner.resumeUrl ? (
+          <div className="flex flex-wrap gap-3">
             <a
               href={owner.resumeUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-3 bg-amber-500 text-ink-950 text-sm font-500 rounded-lg hover:bg-amber-400 transition-colors"
+              aria-label="View resume PDF"
+            >
+              <FileText size={16} />
+              VIEW RESUME
+            </a>
+            <a
+              href={owner.resumeUrl}
+              download
               className="inline-flex items-center gap-2 px-5 py-3 border border-ink-500 text-cream-200 text-sm font-500 rounded-lg hover:border-amber-500 hover:text-amber-400 transition-colors"
               aria-label="Download resume PDF"
             >
               <Download size={16} />
-              Download PDF
+              DOWNLOAD RESUME
             </a>
-          ) : (
-            <div className="inline-flex items-center gap-2 px-5 py-3 border border-dashed border-ink-600/40 text-cream-600 text-sm rounded-lg">
-              <Download size={16} />
-              Resume link to be added
-            </div>
-          )}
+          </div>
         </div>
         <div className="space-y-6">
           <div>
@@ -378,7 +396,7 @@ export function ResumeSection() {
                 {owner.experience.map((entry, i) => (
                   <div key={i} className="p-4 rounded-lg border border-ink-600/40 bg-ink-800/20">
                     <p className="text-sm text-cream-200 font-500">{entry.role}</p>
-                    <p className="text-xs text-cream-400 mt-0.5">{entry.organization}</p>
+                    {entry.organization && <p className="text-xs text-cream-400 mt-0.5">{entry.organization}</p>}
                     {entry.period && <p className="text-xs text-cream-600 mt-1">{entry.period}</p>}
                     {entry.description && <p className="text-sm text-cream-400 mt-2">{entry.description}</p>}
                   </div>
@@ -395,7 +413,7 @@ export function ResumeSection() {
                 {owner.education.map((entry, i) => (
                   <div key={i} className="p-4 rounded-lg border border-ink-600/40 bg-ink-800/20">
                     <p className="text-sm text-cream-200 font-500">{entry.qualification}</p>
-                    <p className="text-xs text-cream-400 mt-0.5">{entry.institution}</p>
+                    {entry.institution && <p className="text-xs text-cream-400 mt-0.5">{entry.institution}</p>}
                     {entry.period && <p className="text-xs text-cream-600 mt-1">{entry.period}</p>}
                   </div>
                 ))}

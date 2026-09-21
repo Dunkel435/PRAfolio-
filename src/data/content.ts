@@ -63,9 +63,44 @@ export const portfolioCategories: PortfolioCategory[] = [
   { id: 'creative-production', label: 'Creative Production', description: 'End-to-end creative production and direction.' },
 ];
 
+// ── Case study shared types ──
+// Used by both Selected Work items and Projects. A work item or
+// project can optionally include a full case study; when present,
+// the card opens the reusable ProjectCaseStudy view.
+
+export interface WorkflowStep {
+  stage: string;
+  title: string;
+  description: string;
+}
+
+export const workflowStages: string[] = [
+  'IDEA',
+  'PROMPT',
+  'GENERATION',
+  'SELECTION',
+  'EDITING',
+  'ANIMATION',
+  'FINAL OUTPUT',
+];
+
+export interface CreativeDecision {
+  title: string;
+  rationale: string;
+}
+
+export interface CaseStudyData {
+  context: string;
+  approach: string;
+  aiWorkflow: WorkflowStep[];
+  creativeDecisions: CreativeDecision[];
+  result: string;
+  whatILearned: string;
+}
+
 // ── Portfolio items (Selected Work) ──
-// Empty until real work is added. Each item supports all fields
-// needed by the future admin system.
+// Each item can carry an optional `caseStudy` object. When present,
+// the WorkCard becomes clickable and opens the ProjectCaseStudy view.
 
 export interface PortfolioItem {
   id: string;
@@ -78,9 +113,43 @@ export interface PortfolioItem {
   projectLink?: string;
   featured: boolean;
   published: boolean;
+  caseStudy?: CaseStudyData;
 }
 
-export const portfolioItems: PortfolioItem[] = [];
+// [EDITABLE] — Placeholder portfolio item. Replace title, description,
+// and case study content with real work. The structure below demonstrates
+// the full case study architecture so the same component can render
+// different projects by data alone.
+
+export const portfolioItems: PortfolioItem[] = [
+  {
+    id: 'placeholder-01',
+    title: '[Portfolio title — to be added]',
+    description: '[Short description of this piece — to be added]',
+    category: 'AI Image Generation',
+    tags: ['placeholder'],
+    featured: false,
+    published: false,
+    caseStudy: {
+      context: '[Describe the creative problem and what was being created — to be added]',
+      approach: '[Describe the approach and visual/creative direction — to be added]',
+      aiWorkflow: [
+        { stage: 'IDEA', title: 'Idea', description: '[Describe the initial idea — to be added]' },
+        { stage: 'PROMPT', title: 'Prompt', description: '[Describe the prompt development — to be added]' },
+        { stage: 'GENERATION', title: 'Generation', description: '[Describe the generation process — to be added]' },
+        { stage: 'SELECTION', title: 'Selection', description: '[Describe the selection process — to be added]' },
+        { stage: 'EDITING', title: 'Editing', description: '[Describe the editing process — to be added]' },
+        { stage: 'ANIMATION', title: 'Animation', description: '[Describe the animation process — to be added]' },
+        { stage: 'FINAL OUTPUT', title: 'Final Output', description: '[Describe the final output — to be added]' },
+      ],
+      creativeDecisions: [
+        { title: '[Decision title — to be added]', rationale: '[Rationale — to be added]' },
+      ],
+      result: '[Describe the final result — to be added]',
+      whatILearned: '[Describe what was learned — to be added]',
+    },
+  },
+];
 
 // ── Experiment items ──
 
@@ -97,7 +166,9 @@ export interface ExperimentItem {
 
 export const experimentItems: ExperimentItem[] = [];
 
-// ── Project case studies ──
+// ── Project case studies (04 / VIER — Projects) ──
+// Larger projects that use the same ProjectCaseStudy component.
+// These are separate from Selected Work.
 
 export interface ProjectCaseStudy {
   slug: string;
@@ -108,6 +179,7 @@ export interface ProjectCaseStudy {
   tags: string[];
   published: boolean;
   featured: boolean;
+  caseStudy?: CaseStudyData;
 }
 
 export const projects: ProjectCaseStudy[] = [
@@ -120,6 +192,24 @@ export const projects: ProjectCaseStudy[] = [
     tags: ['coming-soon'],
     published: false,
     featured: true,
+    caseStudy: {
+      context: '[Describe the creative problem and what was being created — to be added]',
+      approach: '[Describe the approach and visual/creative direction — to be added]',
+      aiWorkflow: [
+        { stage: 'IDEA', title: 'Idea', description: '[Describe the initial idea — to be added]' },
+        { stage: 'PROMPT', title: 'Prompt', description: '[Describe the prompt development — to be added]' },
+        { stage: 'GENERATION', title: 'Generation', description: '[Describe the generation process — to be added]' },
+        { stage: 'SELECTION', title: 'Selection', description: '[Describe the selection process — to be added]' },
+        { stage: 'EDITING', title: 'Editing', description: '[Describe the editing process — to be added]' },
+        { stage: 'ANIMATION', title: 'Animation', description: '[Describe the animation process — to be added]' },
+        { stage: 'FINAL OUTPUT', title: 'Final Output', description: '[Describe the final output — to be added]' },
+      ],
+      creativeDecisions: [
+        { title: '[Decision title — to be added]', rationale: '[Rationale — to be added]' },
+      ],
+      result: '[Describe the final result — to be added]',
+      whatILearned: '[Describe what was learned — to be added]',
+    },
   },
 ];
 
@@ -159,17 +249,28 @@ export const owner = {
   skills: [] as string[],
   // [EDITABLE] — replace with real tools / workflow
   tools: [] as string[],
-  // [EDITABLE] — resume link
-  resumeUrl: null as string | null,
+  resumeUrl: '/assets/resume/Pratham_Chhabra_Resume.pdf',
   // [EDITABLE] — contact channels
   contact: {
     email: null as string | null,
     channels: [] as ContactChannel[],
   },
-  // [EDITABLE] — experience entries
-  experience: [] as ExperienceEntry[],
-  // [EDITABLE] — education entries
-  education: [] as EducationEntry[],
+  experience: [
+    {
+      role: 'Fresher',
+      organization: null,
+      period: null,
+      description: null,
+    },
+  ],
+  education: [
+    {
+      qualification: 'BA Programme',
+      institution: 'Political Science with Economics',
+      period: 'Currently pursuing — Expected completion: 2028',
+      description: null,
+    },
+  ],
 };
 
 // ── Reven Eye gateway ──
