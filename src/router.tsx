@@ -1,13 +1,8 @@
-// Minimal hash-based router — no external dependency.
-// Supports /projects/:slug for case study pages.
+// Minimal hash-based router.
 
-import { useState, useEffect, useCallback, type ReactNode } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
-export interface RouteParams {
-  slug?: string;
-}
-
-export function useRoute(): { path: string; params: RouteParams } {
+export function useRoute(): { path: string } {
   const getPath = () => {
     const hash = window.location.hash.replace(/^#/, '');
     return hash || '/';
@@ -21,13 +16,7 @@ export function useRoute(): { path: string; params: RouteParams } {
     return () => window.removeEventListener('hashchange', handler);
   }, []);
 
-  const params: RouteParams = {};
-  const projectMatch = path.match(/^\/projects\/([^/]+)/);
-  if (projectMatch) {
-    params.slug = projectMatch[1];
-  }
-
-  return { path, params };
+  return { path };
 }
 
 export function useNavigate() {
@@ -35,14 +24,4 @@ export function useNavigate() {
     window.location.hash = to;
     window.scrollTo(0, 0);
   }, []);
-}
-
-export function useParams(): RouteParams {
-  const { params } = useRoute();
-  return params;
-}
-
-export interface RouteProps {
-  path: string;
-  children: ReactNode;
 }

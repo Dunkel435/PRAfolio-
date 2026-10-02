@@ -4,15 +4,11 @@ import type { InteractionState } from '@/three/interaction';
 import { Navigation } from '@/components/Navigation';
 import {
   IntroductionSection,
-  WorkSection,
-  ExperimentsSection,
-  ProjectsSection,
   AboutSection,
   ResumeSection,
   ContactSection,
   RevenEyeSection,
 } from '@/components/Sections';
-import { ProjectCaseStudy } from '@/components/ProjectCaseStudy';
 import { useRoute, useNavigate } from '@/router';
 import { navItems, type SectionId } from '@/data/content';
 
@@ -37,11 +33,9 @@ export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const universeRef = useRef<LivingCreativeUniverse | null>(null);
   const [interactionState, setInteractionState] = useState<InteractionState>('observing');
-  const { path, params } = useRoute();
+  const { path } = useRoute();
   const navigate = useNavigate();
-
-  const isProjectPage = path.startsWith('/projects/') && params.slug;
-  const activeSection = isProjectPage ? 'projects' : parseSectionFromPath(path);
+  const activeSection = parseSectionFromPath(path);
   const activeIndex = navItems.find((item) => item.id === activeSection)?.index ?? -1;
 
   useEffect(() => {
@@ -87,12 +81,6 @@ export default function App() {
     switch (activeSection) {
       case 'introduction':
         return <IntroductionSection onNavigate={handleNavigate} />;
-      case 'work':
-        return <WorkSection />;
-      case 'experiments':
-        return <ExperimentsSection />;
-      case 'projects':
-        return <ProjectsSection onNavigate={handleNavigate} />;
       case 'about':
         return <AboutSection />;
       case 'resume':
@@ -137,15 +125,11 @@ export default function App() {
         className="relative z-20 lg:ml-64 min-h-screen"
         id="main-content"
       >
-        {isProjectPage ? (
-          <ProjectCaseStudy />
-        ) : (
-          <div className="px-5 sm:px-8 lg:px-16 py-20 lg:py-32 max-w-6xl">
-            <div key={activeSection} className="animate-fade-up">
-              {renderSection()}
-            </div>
+        <div className="px-5 sm:px-8 lg:px-16 py-20 lg:py-32 max-w-6xl">
+          <div key={activeSection} className="animate-fade-up">
+            {renderSection()}
           </div>
-        )}
+        </div>
       </main>
 
       <a
