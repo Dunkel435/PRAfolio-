@@ -31,6 +31,7 @@ export interface UniformLocations {
   uTime: WebGLUniformLocation | null;
   uResolution: WebGLUniformLocation | null;
   uPointer: WebGLUniformLocation | null;
+  uPointerSmooth: WebGLUniformLocation | null;
   uPointerStrength: WebGLUniformLocation | null;
   uFocus: WebGLUniformLocation | null;
   uFocusStrength: WebGLUniformLocation | null;
