@@ -74,6 +74,7 @@ export const owner = {
     'University student — Expected graduation: 2028',
   ],
   portfolioUrl: 'https://drive.google.com/drive/folders/17lKhpoqiq_NA6pOdDSCj1QAic45Thl9h',
+  githubUrl: 'https://github.com/Dunkel435',
   resumeUrl: 'https://drive.google.com/file/d/1DTrWMyIjKZmKUghE1APQUw8cus6Ym6_7/view?usp=drivesdk',
   contact: {
     email: 'chhabrapratham435@gmail.com',

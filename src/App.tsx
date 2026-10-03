@@ -9,17 +9,9 @@ import {
   ContactSection,
   RevenEyeSection,
 } from '@/components/Sections';
-import { useRoute, useNavigate } from '@/router';
 import { navItems, type SectionId } from '@/data/content';
 
-function parseSectionFromPath(path: string): SectionId {
-  const match = path.match(/^\/([a-z-]+)/);
-  if (match) {
-    const id = match[1] as SectionId;
-    if (navItems.some((item) => item.id === id)) return id;
-  }
-  return 'introduction';
-}
+const sectionIds: SectionId[] = navItems.map((item) => item.id);
 
 const stateLabels: Record<InteractionState, string> = {
   observing: 'Observing',
@@ -32,11 +24,10 @@ const stateLabels: Record<InteractionState, string> = {
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const universeRef = useRef<LivingCreativeUniverse | null>(null);
+  const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
+  const scrollRafRef = useRef<number>(0);
   const [interactionState, setInteractionState] = useState<InteractionState>('observing');
-  const { path } = useRoute();
-  const navigate = useNavigate();
-  const activeSection = parseSectionFromPath(path);
-  const activeIndex = navItems.find((item) => item.id === activeSection)?.index ?? -1;
+  const [activeSection, setActiveSection] = useState<SectionId>('introduction');
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -47,9 +38,48 @@ export default function App() {
     return () => universe.destroy();
   }, []);
 
+  // Scroll spy — single threshold to minimize callback frequency
   useEffect(() => {
-    universeRef.current?.setActiveSection(activeIndex);
-  }, [activeIndex]);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible.length > 0) {
+          const id = visible[0].target.id as SectionId;
+          if (sectionIds.includes(id)) {
+            setActiveSection((prev) => (prev === id ? prev : id));
+          }
+        }
+      },
+      { threshold: [0.4], rootMargin: '-15% 0px -35% 0px' }
+    );
+
+    sectionRefs.current.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
+  // Update universe active section for focus effect
+  useEffect(() => {
+    const idx = navItems.findIndex((item) => item.id === activeSection);
+    universeRef.current?.setActiveSection(idx);
+  }, [activeSection]);
+
+  // Scroll → universe: use rAF to batch scroll updates, never write to GL from scroll handler directly
+  useEffect(() => {
+    const handler = () => {
+      if (scrollRafRef.current) return; // already scheduled
+      scrollRafRef.current = requestAnimationFrame(() => {
+        scrollRafRef.current = 0;
+        universeRef.current?.scroll(window.scrollY);
+      });
+    };
+    window.addEventListener('scroll', handler, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handler);
+      if (scrollRafRef.current) cancelAnimationFrame(scrollRafRef.current);
+    };
+  }, []);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     const x = e.clientX / window.innerWidth;
@@ -67,32 +97,16 @@ export default function App() {
     universeRef.current?.click(x, y);
   }, []);
 
-  useEffect(() => {
-    const handler = () => universeRef.current?.scroll(window.scrollY);
-    window.addEventListener('scroll', handler, { passive: true });
-    return () => window.removeEventListener('scroll', handler);
+  const handleNavigate = useCallback((id: SectionId) => {
+    const el = sectionRefs.current.get(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }, []);
 
-  const handleNavigate = useCallback((id: SectionId) => {
-    navigate(`/${id}`);
-  }, [navigate]);
-
-  const renderSection = () => {
-    switch (activeSection) {
-      case 'introduction':
-        return <IntroductionSection onNavigate={handleNavigate} />;
-      case 'about':
-        return <AboutSection />;
-      case 'resume':
-        return <ResumeSection />;
-      case 'contact':
-        return <ContactSection />;
-      case 'reven-eye':
-        return <RevenEyeSection />;
-      default:
-        return <IntroductionSection onNavigate={handleNavigate} />;
-    }
-  };
+  const setSectionRef = useCallback((id: SectionId) => (el: HTMLElement | null) => {
+    if (el) sectionRefs.current.set(id, el);
+  }, []);
 
   return (
     <div
@@ -107,10 +121,12 @@ export default function App() {
         aria-hidden="true"
       />
 
-      <div className="fixed inset-0 z-10 pointer-events-none bg-gradient-to-b from-ink-950/40 via-transparent to-ink-950/60" />
+      <div className="fixed inset-0 z-10 pointer-events-none bg-gradient-to-b from-ink-950/30 via-transparent to-ink-950/50" />
+
+      <Navigation activeSection={activeSection} onNavigate={handleNavigate} />
 
       <div
-        className="fixed top-20 lg:top-6 right-4 lg:right-8 z-30 pointer-events-none"
+        className="fixed bottom-4 right-4 z-30 pointer-events-none"
         aria-hidden="true"
       >
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full glass text-xs font-mono text-cream-400">
@@ -119,17 +135,56 @@ export default function App() {
         </div>
       </div>
 
-      <Navigation activeSection={activeSection} onNavigate={handleNavigate} />
-
-      <main
-        className="relative z-20 lg:ml-64 min-h-screen"
-        id="main-content"
-      >
-        <div className="px-5 sm:px-8 lg:px-16 py-20 lg:py-32 max-w-6xl">
-          <div key={activeSection} className="animate-fade-up">
-            {renderSection()}
+      <main id="main-content" className="relative z-20">
+        <section
+          id="introduction"
+          ref={setSectionRef('introduction')}
+          className="min-h-screen flex items-center px-5 sm:px-8 lg:px-16 pt-20 pb-16"
+        >
+          <div className="max-w-6xl w-full">
+            <IntroductionSection onNavigate={handleNavigate} />
           </div>
-        </div>
+        </section>
+
+        <section
+          id="about"
+          ref={setSectionRef('about')}
+          className="min-h-screen flex items-center px-5 sm:px-8 lg:px-16 py-20"
+        >
+          <div className="max-w-6xl w-full">
+            <AboutSection />
+          </div>
+        </section>
+
+        <section
+          id="resume"
+          ref={setSectionRef('resume')}
+          className="min-h-screen flex items-center px-5 sm:px-8 lg:px-16 py-20"
+        >
+          <div className="max-w-6xl w-full">
+            <ResumeSection />
+          </div>
+        </section>
+
+        <section
+          id="contact"
+          ref={setSectionRef('contact')}
+          className="min-h-screen flex items-center px-5 sm:px-8 lg:px-16 py-20"
+        >
+          <div className="max-w-6xl w-full">
+            <ContactSection />
+          </div>
+        </section>
+
+        <section
+          id="reven-eye"
+          ref={setSectionRef('reven-eye')}
+          className="min-h-screen flex items-center px-5 sm:px-8 lg:px-16 py-20"
+        >
+          <div className="max-w-6xl w-full">
+            <RevenEyeSection />
+          </div>
+        </section>
       </main>
 
       <a
